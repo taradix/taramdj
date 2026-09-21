@@ -1,0 +1,53 @@
+name: taramdj
+include:
+  - path: ./taracert/compose.yml
+services:
+  frontend:
+    build: frontend
+    environment:
+      SHEET_ID: ${SHEET_ID}
+      SHEET_TAB: ${SHEET_TAB:-Evenements}
+    networks:
+      default:
+        aliases:
+          - taramdj-frontend
+    restart: always
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost/" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+
+  nginx:
+    build: nginx
+    depends_on:
+      certbot:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    volumes:
+      - certbot-www:/web:ro
+      - certbot-certs:/etc/letsencrypt:ro
+      - ./nginx/conf.d/:/etc/nginx/conf.d/:z
+    environment:
+      - SERVER_HOSTNAME=${SERVER_HOSTNAME}
+      - ADDITIONAL_SERVER_NAMES=${ADDITIONAL_SERVER_NAMES:-}
+      - IPV4_NETWORK=${IPV4_NETWORK:-172.22.8}
+    ports:
+      - '${HTTP_BIND:-}:${HTTP_PORT:-80}:80'
+      - '${HTTPS_BIND:-}:${HTTPS_PORT:-443}:443'
+    networks:
+      default:
+        aliases:
+          - taramdj-nginx
+    restart: always
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-taramdj
+    ipam:
+      driver: default
+      config:
+        - subnet: ${IPV4_NETWORK:-172.22.8}.0/24

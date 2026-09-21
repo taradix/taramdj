@@ -1,0 +1,9 @@
+# Environment variables
+.env
+
+# Conda/virtual environments
+env/
+
+# Lint checker
+node_modules/
+.coverage
