@@ -1,0 +1,176 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+header h1 {
+  min-width: 12ch;
+  font-size: 1.4rem;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+header button {
+  padding: 0.2rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: 0.4rem;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.etat {
+  padding: 0 1rem 0.5rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.etat.erreur {
+  color: #e05252;
+  opacity: 1;
+}
+
+.calendrier {
+  display: flex;
+  flex: 1;
+  gap: 1rem;
+  min-height: 0;
+  padding: 0 1rem 1rem;
+}
+
+.grille {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: auto repeat(6, 1fr);
+  gap: 2px;
+  min-height: 0;
+}
+
+.entete {
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.case {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.25rem;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 0.3rem;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.case:hover {
+  border-color: currentColor;
+}
+
+.case.hors-mois {
+  opacity: 0.35;
+}
+
+.case.aujourdhui .numero {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.case.choisie {
+  outline: 2px solid #4a90d9;
+}
+
+.numero {
+  font-size: 0.85rem;
+}
+
+.pastille {
+  overflow: hidden;
+  padding: 0 0.2rem;
+  border-radius: 0.2rem;
+  background: #4a90d9;
+  color: #fff;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.reste {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.details {
+  overflow-y: auto;
+  width: min(22rem, 40vw);
+  padding-left: 1rem;
+  border-left: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.details h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+.details article {
+  margin-bottom: 1rem;
+}
+
+.details h3 {
+  font-size: 1rem;
+}
+
+.details .quand,
+.details .lieu {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.details .vide {
+  opacity: 0.6;
+}
+
+/* Sur petit écran, le panneau passe sous la grille. */
+@media (width <= 40rem) {
+  .calendrier {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .grille {
+    min-height: 24rem;
+  }
+
+  .details {
+    width: auto;
+    padding: 1rem 0 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.3);
+    border-left: none;
+  }
+
+  .pastille {
+    font-size: 0.6rem;
+  }
+}

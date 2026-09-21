@@ -1,0 +1,56 @@
+# Rendered by the nginx image entrypoint (envsubst over /etc/nginx/templates).
+# SHEET_ID and SHEET_TAB come from compose.
+
+proxy_cache_path /var/cache/nginx/sheet levels=1:2 keys_zone=sheet:1m max_size=10m;
+
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    resolver 127.0.0.11 ipv6=off valid=30s;
+
+    # SPA fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # The events, straight from the public spreadsheet. Keeps the sheet id off
+    # the client, avoids CORS, and shields Google from per-visitor traffic.
+    location = /evenements.csv {
+        set $sheet "https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_TAB}";
+        proxy_pass $sheet;
+        proxy_set_header Host docs.google.com;
+        proxy_ssl_server_name on;
+
+        proxy_buffer_size 64k;
+        proxy_buffers 8 64k;
+
+        proxy_cache sheet;
+        proxy_cache_valid 200 5m;
+        proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+        proxy_cache_lock on;
+
+        # Do not expose Google-specific response metadata to our clients.
+        proxy_hide_header Set-Cookie;
+        proxy_hide_header Cache-Control;
+        proxy_hide_header Reporting-Endpoints;
+        proxy_hide_header Content-Security-Policy;
+        proxy_hide_header Document-Policy;
+        proxy_hide_header P3P;
+        proxy_hide_header X-Robots-Tag;
+
+        add_header Cache-Control "public, max-age=300";
+        add_header X-Cache-Status $upstream_cache_status;
+
+        default_type text/csv;
+        charset utf-8;
+    }
+}
