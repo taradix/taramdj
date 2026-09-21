@@ -9,7 +9,7 @@ services:
       - /app/node_modules
     # node_modules is an anonymous volume, so it starts empty on first up.
     command: sh -c "npm install && npm run dev -- --host --port 80"
+    working_dir: /app
     healthcheck:
       # Leave room for the first npm install before nginx gives up waiting.
       start_period: 300s
-    working_dir: /app

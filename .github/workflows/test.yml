@@ -21,6 +21,15 @@ jobs:
       - name: Run check target
         run: make check
 
+  nginx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Validate nginx configuration
+        run: make check-nginx
+
   frontend-test:
     runs-on: ubuntu-latest
     strategy:

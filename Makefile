@@ -23,8 +23,27 @@ $(NODE_MODULES): package-lock.json
 .PHONY: setup
 setup: $(NODE_MODULES)
 
+NGINX_IMAGE := nginx:1.29.4-alpine
+
+# nginx -t verifies that ssl_certificate files exist, so it needs a throwaway
+# certificate at the path nginx.conf expects.
+.PHONY: check-nginx
+check-nginx:
+	@echo "==> Validating nginx configuration..."
+	@tmp=$$(mktemp -d); \
+	mkdir -p $$tmp/live; \
+	openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=localhost \
+	  -keyout $$tmp/live/privkey.pem -out $$tmp/live/fullchain.pem 2>/dev/null; \
+	docker run --rm \
+	  -v $$tmp:/etc/letsencrypt:ro \
+	  -v $(CURDIR)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+	  -v $(CURDIR)/nginx/includes/:/etc/nginx/includes/:ro \
+	  -v $(CURDIR)/nginx/conf.d/:/etc/nginx/conf.d/:ro \
+	  $(NGINX_IMAGE) nginx -t; \
+	status=$$?; rm -rf $$tmp; exit $$status
+
 .PHONY: check
-check: $(NODE_MODULES)
+check: $(NODE_MODULES) check-nginx
 	@echo "==> Linting docker compose files..."
 	@npm run lint
 
