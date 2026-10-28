@@ -3,7 +3,7 @@ include:
   - path: ./taracert/compose.dev.yml
 services:
   frontend:
-    image: node:24-alpine
+    image: node:26-alpine
     volumes:
       - ./frontend:/app
       - /app/node_modules
